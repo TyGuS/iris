@@ -1,4 +1,5 @@
 opam-version: "2.0"
+version: "dev"
 maintainer: "Ralf Jung <jung@mpi-sws.org>"
 authors: "The Iris Team"
 license: "BSD-3-Clause"
