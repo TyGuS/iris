@@ -218,17 +218,24 @@ Qed.
 Lemma twp_allocN_seq s E v n :
   (0 < n)%Z →
   [[{ True }]] AllocN (Val $ LitV $ LitInt $ n) (Val v) @ s; E
-  [[{ l, RET LitV (LitLoc l); [∗ list] i ∈ seq 0 (Z.to_nat n),
+  [[{ l, RET LitV (LitLoc l); ⌜l ≠ null_loc⌝ ∗ [∗ list] i ∈ seq 0 (Z.to_nat n),
       (l +ₗ (i : nat)) ↦ v ∗ meta_token (l +ₗ (i : nat)) ⊤ }]].
 Proof.
   iIntros (Hn Φ) "_ HΦ". iApply twp_lift_atomic_head_step_no_fork; first done.
-  iIntros (σ1 κs k) "[Hσ Hκs] !>"; iSplit; first by destruct n; auto with lia head_step.
+  iIntros (σ1 κs k) "[Hσ Hκs] !>".
+  iSplit; first by destruct n; auto with lia head_step.
   iIntros (κ v2 σ2 efs Hstep); inv_head_step.
   iMod (gen_heap_alloc_big _ (heap_array _ (replicate (Z.to_nat n) v)) with "Hσ")
     as "(Hσ & Hl & Hm)".
   { apply heap_array_map_disjoint.
     rewrite replicate_length Z2Nat.id; auto with lia. }
   iModIntro; do 2 (iSplit; first done). iFrame "Hσ Hκs". iApply "HΦ".
+  iSplitR.
+  { iPureIntro.
+    match goal with
+    | [H: _ /\ _ |- _] => destruct H; auto
+    end.
+  }
   iApply big_sepL_sep. iSplitL "Hl".
   - by iApply heap_array_to_seq_mapsto.
   - iApply (heap_array_to_seq_meta with "Hm"). by rewrite replicate_length.
@@ -236,7 +243,7 @@ Qed.
 Lemma wp_allocN_seq s E v n :
   (0 < n)%Z →
   {{{ True }}} AllocN (Val $ LitV $ LitInt $ n) (Val v) @ s; E
-  {{{ l, RET LitV (LitLoc l); [∗ list] i ∈ seq 0 (Z.to_nat n),
+  {{{ l, RET LitV (LitLoc l); ⌜l ≠ null_loc⌝ ∗ [∗ list] i ∈ seq 0 (Z.to_nat n),
       (l +ₗ (i : nat)) ↦ v ∗ meta_token (l +ₗ (i : nat)) ⊤ }}}.
 Proof.
   iIntros (Hn Φ) "_ HΦ". iApply (twp_wp_step with "HΦ").
@@ -244,13 +251,13 @@ Proof.
 Qed.
 
 Lemma twp_alloc s E v :
-  [[{ True }]] Alloc (Val v) @ s; E [[{ l, RET LitV (LitLoc l); l ↦ v ∗ meta_token l ⊤ }]].
+  [[{ True }]] Alloc (Val v) @ s; E [[{ l, RET LitV (LitLoc l); l ↦ v ∗ ⌜l ≠ null_loc⌝ ∗ meta_token l ⊤ }]].
 Proof.
   iIntros (Φ) "_ HΦ". iApply twp_allocN_seq; [auto with lia..|].
-  iIntros (l) "/= (? & _)". rewrite loc_add_0. iApply "HΦ"; iFrame.
+  iIntros (l) "/= (? & ? & _)". rewrite loc_add_0. iApply "HΦ"; repeat iFrame.
 Qed.
 Lemma wp_alloc s E v :
-  {{{ True }}} Alloc (Val v) @ s; E {{{ l, RET LitV (LitLoc l); l ↦ v ∗ meta_token l ⊤ }}}.
+  {{{ True }}} Alloc (Val v) @ s; E {{{ l, RET LitV (LitLoc l); l ↦ v ∗ ⌜l ≠ null_loc⌝ ∗ meta_token l ⊤ }}}.
 Proof.
   iIntros (Φ) "_ HΦ". iApply (twp_wp_step with "HΦ").
   iApply twp_alloc; [by auto..|]; iIntros (l) "H HΦ". by iApply "HΦ".

@@ -110,18 +110,19 @@ Qed.
 Lemma twp_allocN s E v n :
   (0 < n)%Z →
   [[{ True }]] AllocN (Val $ LitV $ LitInt $ n) (Val v) @ s; E
-  [[{ l, RET LitV (LitLoc l); l ↦∗ replicate (Z.to_nat n) v ∗
+  [[{ l, RET LitV (LitLoc l); ⌜l ≠ null_loc⌝ ∗ l ↦∗ replicate (Z.to_nat n) v ∗
          [∗ list] i ∈ seq 0 (Z.to_nat n), meta_token (l +ₗ (i : nat)) ⊤ }]].
 Proof.
   iIntros (Hzs Φ) "_ HΦ". iApply twp_allocN_seq; [done..|].
-  iIntros (l) "Hlm". iApply "HΦ".
+  iIntros (l) "[A Hlm]". iApply "HΦ".
+  iSplitL "A"; first by iFrame.
   iDestruct (big_sepL_sep with "Hlm") as "[Hl $]".
   by iApply mapsto_seq_array.
 Qed.
 Lemma wp_allocN s E v n :
   (0 < n)%Z →
   {{{ True }}} AllocN (Val $ LitV $ LitInt $ n) (Val v) @ s; E
-  {{{ l, RET LitV (LitLoc l); l ↦∗ replicate (Z.to_nat n) v ∗
+  {{{ l, RET LitV (LitLoc l); ⌜l ≠ null_loc⌝ ∗ l ↦∗ replicate (Z.to_nat n) v ∗
          [∗ list] i ∈ seq 0 (Z.to_nat n), meta_token (l +ₗ (i : nat)) ⊤ }}}.
 Proof.
   iIntros (? Φ) "_ HΦ". iApply (twp_wp_step with "HΦ").

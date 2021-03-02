@@ -651,7 +651,7 @@ Inductive head_step : expr → state → list observation → expr → state →
   | ForkS e σ:
      head_step (Fork e) σ [] (Val $ LitV LitUnit) σ [e]
   | AllocNS n v σ l :
-     (0 < n)%Z →
+     (0 < n)%Z ∧ (l ≠ null_loc) →
      (∀ i, (0 ≤ i)%Z → (i < n)%Z → σ.(heap) !! (l +ₗ i) = None) →
      head_step (AllocN (Val $ LitV $ LitInt n) (Val v)) σ
                []
@@ -720,6 +720,15 @@ Proof.
   revert Ki1. induction Ki2; intros Ki1; induction Ki1; naive_solver eauto with f_equal.
 Qed.
 
+Lemma foldr_gt0 xs:
+((foldr (λ (k : loc) (r : Z), ((1 + loc_car k) `max` r)%Z) 1%Z xs) > 0)%Z.
+Proof.
+  induction xs as [|x xs IH]; first done.
+  simpl; apply Z.max_case_strong=>H.
+  { apply Z.lt_gt. eapply Z.lt_le_trans; by [apply Z.gt_lt|]. }
+  by apply IH.
+Qed.
+
 Lemma alloc_fresh v n σ :
   let l := fresh_locs (dom (gset loc) σ.(heap)) in
   (0 < n)%Z →
@@ -727,7 +736,15 @@ Lemma alloc_fresh v n σ :
             (Val $ LitV $ LitLoc l) (state_init_heap l n v σ) [].
 Proof.
   intros.
-  apply AllocNS; first done.
+  apply AllocNS.
+  { split; first auto.
+    subst l.
+    Transparent fresh_locs.
+    rewrite/fresh_locs/set_fold=>/=.
+    Opaque fresh_locs.
+    pose proof (foldr_gt0 (elements (dom (gset loc) (heap σ)))) as H1.
+    by move=>[Hyp]; rewrite Hyp in H1.
+  }
   intros. apply (not_elem_of_dom (D := gset loc)).
   by apply fresh_locs_fresh.
 Qed.

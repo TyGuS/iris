@@ -213,11 +213,12 @@ Implicit Types Δ : envs (uPredI (iResUR Σ)).
 Implicit Types v : val.
 Implicit Types z : Z.
 
-Lemma tac_wp_allocN Δ Δ' s E j K v n Φ :
+Lemma tac_wp_allocN Δ Δ' s E j' j K v n Φ :
   (0 < n)%Z →
   MaybeIntoLaterNEnvs 1 Δ Δ' →
   (∀ l,
-    match envs_app false (Esnoc Enil j (array l (DfracOwn 1) (replicate (Z.to_nat n) v))) Δ' with
+      match envs_app false (Esnoc (Esnoc Enil j (array l (DfracOwn 1) (replicate (Z.to_nat n) v)))
+                              j' (⌜l ≠ null_loc⌝)) Δ' with
     | Some Δ'' =>
        envs_entails Δ'' (WP fill K (Val $ LitV $ LitLoc l) @ s; E {{ Φ }})
     | None => False
@@ -230,12 +231,15 @@ Proof.
   specialize (HΔ l).
   destruct (envs_app _ _ _) as [Δ''|] eqn:HΔ'; [ | contradiction ].
   rewrite envs_app_sound //; simpl.
-  apply wand_intro_l. by rewrite (sep_elim_l (l ↦∗ _)%I) right_id wand_elim_r.
+  apply wand_intro_l.
+  rewrite bi.sep_assoc (bi.sep_elim_l (⌜l ≠ null_loc⌝ ∗ _)%I).
+  by rewrite right_id bi.wand_elim_r.
 Qed.
-Lemma tac_twp_allocN Δ s E j K v n Φ :
+Lemma tac_twp_allocN Δ s E j' j K v n Φ :
   (0 < n)%Z →
   (∀ l,
-    match envs_app false (Esnoc Enil j (array l (DfracOwn 1) (replicate (Z.to_nat n) v))) Δ with
+      match envs_app false (Esnoc (Esnoc Enil j (array l (DfracOwn 1) (replicate (Z.to_nat n) v)))
+                              j' (⌜l ≠ null_loc⌝)) Δ with
     | Some Δ' =>
        envs_entails Δ' (WP fill K (Val $ LitV $ LitLoc l) @ s; E [{ Φ }])
     | None => False
@@ -251,10 +255,10 @@ Proof.
   apply wand_intro_l. by rewrite (sep_elim_l (l ↦∗ _)%I) right_id wand_elim_r.
 Qed.
 
-Lemma tac_wp_alloc Δ Δ' s E j K v Φ :
+Lemma tac_wp_alloc Δ Δ' s E j j' K v Φ :
   MaybeIntoLaterNEnvs 1 Δ Δ' →
   (∀ l,
-    match envs_app false (Esnoc Enil j (l ↦ v)) Δ' with
+    match envs_app false (Esnoc (Esnoc Enil j ⌜l ≠ null_loc⌝) j' (l ↦ v)) Δ' with
     | Some Δ'' =>
        envs_entails Δ'' (WP fill K (Val $ LitV l) @ s; E {{ Φ }})
     | None => False
@@ -267,11 +271,12 @@ Proof.
   specialize (HΔ l).
   destruct (envs_app _ _ _) as [Δ''|] eqn:HΔ'; [ | contradiction ].
   rewrite envs_app_sound //; simpl.
-  apply wand_intro_l. by rewrite (sep_elim_l (l ↦ v)%I) right_id wand_elim_r.
+  apply wand_intro_l.
+  by rewrite sep_assoc (sep_elim_l (l ↦ v ∗ ⌜l ≠ null_loc⌝)%I) right_id wand_elim_r.
 Qed.
-Lemma tac_twp_alloc Δ s E j K v Φ :
+Lemma tac_twp_alloc Δ s E j j' K v Φ :
   (∀ l,
-    match envs_app false (Esnoc Enil j (l ↦ v)) Δ with
+    match envs_app false (Esnoc (Esnoc Enil j ⌜l ≠ null_loc⌝) j' (l ↦ v)) Δ with
     | Some Δ' =>
        envs_entails Δ' (WP fill K (Val $ LitV $ LitLoc l) @ s; E [{ Φ }])
     | None => False
@@ -284,7 +289,8 @@ Proof.
   specialize (HΔ l).
   destruct (envs_app _ _ _) as [Δ''|] eqn:HΔ'; [ | contradiction ].
   rewrite envs_app_sound //; simpl.
-  apply wand_intro_l. by rewrite (sep_elim_l (l ↦ v)%I) right_id wand_elim_r.
+  apply wand_intro_l.
+  by rewrite sep_assoc (sep_elim_l (l ↦ v ∗ ⌜l ≠ null_loc⌝)%I) right_id wand_elim_r.
 Qed.
 
 Lemma tac_wp_free Δ Δ' s E i K l v Φ :
@@ -564,6 +570,7 @@ Tactic Notation "awp_apply" open_constr(lem) "without" constr(Hs) :=
 
 Tactic Notation "wp_alloc" ident(l) "as" constr(H) :=
   let Htmp := iFresh in
+  let Htmp' := iFresh in
   let finish _ :=
     first [intros l | fail 1 "wp_alloc:" l "not fresh"];
     pm_reduce;
@@ -584,14 +591,14 @@ Tactic Notation "wp_alloc" ident(l) "as" constr(H) :=
   | |- envs_entails _ (wp ?s ?E ?e ?Q) =>
     let process_single _ :=
         first
-          [reshape_expr e ltac:(fun K e' => eapply (tac_wp_alloc _ _ _ _ Htmp K))
+          [reshape_expr e ltac:(fun K e' => eapply (tac_wp_alloc _ _ _ _ Htmp' Htmp K))
           |fail 1 "wp_alloc: cannot find 'Alloc' in" e];
         [iSolveTC
         |finish ()]
     in
     let process_array _ :=
         first
-          [reshape_expr e ltac:(fun K e' => eapply (tac_wp_allocN _ _ _ _ Htmp K))
+          [reshape_expr e ltac:(fun K e' => eapply (tac_wp_allocN _ _ _ _ Htmp' Htmp K))
           |fail 1 "wp_alloc: cannot find 'Alloc' in" e];
         [idtac|iSolveTC
          |finish ()]
@@ -599,13 +606,13 @@ Tactic Notation "wp_alloc" ident(l) "as" constr(H) :=
   | |- envs_entails _ (twp ?s ?E ?e ?Q) =>
     let process_single _ :=
         first
-          [reshape_expr e ltac:(fun K e' => eapply (tac_twp_alloc _ _ _ Htmp K))
+          [reshape_expr e ltac:(fun K e' => eapply (tac_twp_alloc _ _ _ Htmp' Htmp K))
           |fail 1 "wp_alloc: cannot find 'Alloc' in" e];
         finish ()
     in
     let process_array _ :=
         first
-          [reshape_expr e ltac:(fun K e' => eapply (tac_twp_allocN _ _ _ Htmp K))
+          [reshape_expr e ltac:(fun K e' => eapply (tac_twp_allocN _ _ _ Htmp' Htmp K))
           |fail 1 "wp_alloc: cannot find 'Alloc' in" e];
         [idtac
         |finish ()]

@@ -4,6 +4,8 @@ From iris.prelude Require Import options.
 
 Record loc := { loc_car : Z }.
 
+Definition null_loc : loc := {|loc_car := 0 |}.
+
 Global Instance loc_eq_decision : EqDecision loc.
 Proof. solve_decision. Qed.
 

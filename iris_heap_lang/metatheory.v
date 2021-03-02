@@ -94,7 +94,7 @@ Proof.
 Qed.
 
 Lemma heap_closed_alloc σ l n w :
-  (0 < n)%Z →
+  (0 < n)%Z ∧ (l ≠ null_loc) →
   is_closed_val w →
   map_Forall (λ _ v, from_option is_closed_val true v) (heap σ) →
   (∀ i : Z, (0 ≤ i)%Z → (i < n)%Z → heap σ !! (l +ₗ i) = None) →

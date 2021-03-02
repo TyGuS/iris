@@ -246,7 +246,7 @@ Lemma erased_head_step_head_step_NewProph σ :
   head_steps_to_erasure_of NewProph σ #LitPoison (erase_state σ) [].
 Proof. eexists _, _, _, _; split; first eapply new_proph_id_fresh; done. Qed.
 Lemma erased_head_step_head_step_AllocN n v σ l :
-  (0 < n)%Z →
+  (0 < n)%Z ∧ (l ≠ null_loc) →
   (∀ i : Z, (0 ≤ i)%Z → (i < n)%Z → erase_heap (heap σ) !! (l +ₗ i) = None) →
   head_steps_to_erasure_of
     (AllocN #n v) σ #l (state_init_heap l n (erase_val v) (erase_state σ)) [].
@@ -678,7 +678,7 @@ Proof.
 Qed.
 
 Lemma head_step_erased_prim_step_allocN σ l n v:
-  (0 < n)%Z →
+  (0 < n)%Z ∧ (l ≠ null_loc) →
   (∀ i : Z, (0 ≤ i)%Z → (i < n)%Z → heap σ !! (l +ₗ i) = None) →
   ∃ e2' σ2' ef',
     prim_step (AllocN #n (erase_val v)) (erase_state σ) [] e2' σ2' ef'.

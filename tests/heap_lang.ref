@@ -1,6 +1,6 @@
 "heap_e_spec"
      : string
-1 goal
+1 subgoal
   
   Σ : gFunctors
   heapG0 : heapG Σ
@@ -9,7 +9,7 @@
   --------------------------------------∗
   WP let: "x" := ref #1 in "x" <- ! "x" + #1;; ! "x" @ E {{ v, ⌜v = #2⌝ }}
   
-1 goal
+1 subgoal
   
   Σ : gFunctors
   heapG0 : heapG Σ
@@ -22,7 +22,7 @@
   
 "heap_e2_spec"
      : string
-1 goal
+1 subgoal
   
   Σ : gFunctors
   heapG0 : heapG Σ
@@ -34,7 +34,7 @@
   WP let: "x" := #l in let: "y" := ref #1 in "x" <- ! "x" + #1;; ! "x"
   @ E [{ v, ⌜v = #2⌝ }]
   
-1 goal
+1 subgoal
   
   Σ : gFunctors
   heapG0 : heapG Σ
@@ -48,7 +48,7 @@
   
 "heap_e7_spec"
      : string
-1 goal
+1 subgoal
   
   Σ : gFunctors
   heapG0 : heapG Σ
@@ -58,7 +58,7 @@
   --------------------------------------∗
   WP CmpXchg #l #0 #1 {{ _, l ↦ #1 }}
   
-1 goal
+1 subgoal
   
   Σ : gFunctors
   heapG0 : heapG Σ
@@ -70,31 +70,15 @@
   
 "wp_load_fail"
      : string
-The command has indeed failed with message:
-Tactic failure: wp_load: cannot find 'Load' in (Fork #()).
-The command has indeed failed with message:
-Tactic failure: wp_load: cannot find 'Load' in (Fork #()).
 "wp_load_no_ptsto"
      : string
-The command has indeed failed with message:
-Tactic failure: wp_load: cannot find l ↦ ?.
 "wp_store_fail"
      : string
-The command has indeed failed with message:
-Tactic failure: wp_store: cannot find 'Store' in (Fork #()).
-The command has indeed failed with message:
-Tactic failure: wp_store: cannot find 'Store' in (Fork #()).
 "wp_store_no_ptsto"
      : string
-The command has indeed failed with message:
-Tactic failure: wp_store: cannot find l ↦ ?.
 "(t)wp_bind_fail"
      : string
-The command has indeed failed with message:
-Tactic failure: wp_bind: cannot find (! ?e)%E in (Val #()).
-The command has indeed failed with message:
-Tactic failure: wp_bind: cannot find (! ?e)%E in (Val #()).
-1 goal
+1 subgoal
   
   Σ : gFunctors
   heapG0 : heapG Σ
@@ -105,7 +89,7 @@ Tactic failure: wp_bind: cannot find (! ?e)%E in (Val #()).
   --------------------------------------∗
   |={⊤}=> True
   
-1 goal
+1 subgoal
   
   Σ : gFunctors
   heapG0 : heapG Σ
@@ -116,10 +100,7 @@ Tactic failure: wp_bind: cannot find (! ?e)%E in (Val #()).
   
 "wp_nonclosed_value"
      : string
-The command has indeed failed with message:
-Tactic failure: wp_pure: cannot find ?y in (Var "x") or 
-?y is not a redex.
-1 goal
+1 subgoal
   
   Σ : gFunctors
   heapG0 : heapG Σ
@@ -127,7 +108,7 @@ Tactic failure: wp_pure: cannot find ?y in (Var "x") or
   --------------------------------------∗
   WP "x" {{ _, True }}
   
-1 goal
+1 subgoal
   
   Σ : gFunctors
   heapG0 : heapG Σ
@@ -143,7 +124,7 @@ Tactic failure: wp_pure: cannot find ?y in (Var "x") or
   
 "test_array_fraction_destruct"
      : string
-1 goal
+1 subgoal
   
   Σ : gFunctors
   heapG0 : heapG Σ
@@ -157,7 +138,7 @@ Tactic failure: wp_pure: cannot find ?y in (Var "x") or
   
 "test_wp_finish_fupd"
      : string
-1 goal
+1 subgoal
   
   Σ : gFunctors
   heapG0 : heapG Σ
@@ -168,7 +149,7 @@ Tactic failure: wp_pure: cannot find ?y in (Var "x") or
   
 "test_twp_finish_fupd"
      : string
-1 goal
+1 subgoal
   
   Σ : gFunctors
   heapG0 : heapG Σ
@@ -177,7 +158,7 @@ Tactic failure: wp_pure: cannot find ?y in (Var "x") or
   --------------------------------------∗
   |={⊤}=> True
   
-1 goal
+1 subgoal
   
   Σ : gFunctors
   heapG0 : heapG Σ
@@ -191,7 +172,7 @@ Tactic failure: wp_pure: cannot find ?y in (Var "x") or
   --------------------------------------∗
   WP ! #l {{ v, Φ v }}
   
-1 goal
+1 subgoal
   
   Σ : gFunctors
   heapG0 : heapG Σ
@@ -205,7 +186,7 @@ Tactic failure: wp_pure: cannot find ?y in (Var "x") or
   --------------------------------------∗
   WP ! #l [{ v, Φ v }]
   
-1 goal
+1 subgoal
   
   Σ : gFunctors
   heapG0 : heapG Σ
@@ -216,7 +197,7 @@ Tactic failure: wp_pure: cannot find ?y in (Var "x") or
   ⊢ l ↦_(λ _ : val, I #true) □
 "wp_iMod_fupd_atomic"
      : string
-2 goals
+2 subgoals
   
   Σ : gFunctors
   heapG0 : heapG Σ
@@ -225,14 +206,14 @@ Tactic failure: wp_pure: cannot find ?y in (Var "x") or
   ============================
   Atomic (stuckness_to_atomicity NotStuck) (#() #())
 
-goal 2 is:
+subgoal 2 is:
  "H" : P
 --------------------------------------∗
 WP #() #() @ E2 {{ _, |={E2,E1}=> True }}
 
 "wp_iInv_atomic"
      : string
-2 goals
+2 subgoals
   
   Σ : gFunctors
   heapG0 : heapG Σ
@@ -243,7 +224,7 @@ WP #() #() @ E2 {{ _, |={E2,E1}=> True }}
   ============================
   Atomic (stuckness_to_atomicity NotStuck) (#() #())
 
-goal 2 is:
+subgoal 2 is:
  "H" : ▷ P
 "Hclose" : ▷ P ={E ∖ ↑N,E}=∗ emp
 --------------------------------------∗
@@ -251,7 +232,7 @@ WP #() #() @ E ∖ ↑N {{ _, |={E ∖ ↑N,E}=> True }}
 
 "wp_iInv_atomic_acc"
      : string
-2 goals
+2 subgoals
   
   Σ : gFunctors
   heapG0 : heapG Σ
@@ -262,12 +243,12 @@ WP #() #() @ E ∖ ↑N {{ _, |={E ∖ ↑N,E}=> True }}
   ============================
   Atomic (stuckness_to_atomicity NotStuck) (#() #())
 
-goal 2 is:
+subgoal 2 is:
  "H" : ▷ P
 --------------------------------------∗
 WP #() #() @ E ∖ ↑N {{ _, |={E ∖ ↑N}=> ▷ P ∗ True }}
 
-1 goal
+1 subgoal
   
   Σ : gFunctors
   heapG0 : heapG Σ
@@ -275,7 +256,7 @@ WP #() #() @ E ∖ ↑N {{ _, |={E ∖ ↑N}=> ▷ P ∗ True }}
   --------------------------------------∗
   WP let: "f" := λ: "x", "x" in ref ("f" #10) {{ _, True }}
   
-1 goal
+1 subgoal
   
   Σ : gFunctors
   heapG0 : heapG Σ
@@ -287,7 +268,7 @@ WP #() #() @ E ∖ ↑N {{ _, |={E ∖ ↑N}=> ▷ P ∗ True }}
      let: "val3" := fun3 "val2" in if: "val1" = "val2" then "val" else "val3"
   {{ _, True }}
   
-1 goal
+1 subgoal
   
   Σ : gFunctors
   heapG0 : heapG Σ
@@ -300,7 +281,7 @@ WP #() #() @ E ∖ ↑N {{ _, |={E ∖ ↑N}=> ▷ P ∗ True }}
      let: "v" := fun3 "v" in if: "v" = "v" then "v" else "v" 
   {{ v, Φ v }}
   
-1 goal
+1 subgoal
   
   Σ : gFunctors
   heapG0 : heapG Σ
@@ -314,7 +295,7 @@ WP #() #() @ E ∖ ↑N {{ _, |={E ∖ ↑N}=> ▷ P ∗ True }}
      let: "v" := fun3 "v" in if: "v" = "v" then "v" else "v" 
   @ E {{ v, Φ v }}
   
-1 goal
+1 subgoal
   
   Σ : gFunctors
   heapG0 : heapG Σ
@@ -327,6 +308,3 @@ WP #() #() @ E ∖ ↑N {{ _, |={E ∖ ↑N}=> ▷ P ∗ True }}
   {{{ (x y : val) (z : Z), RET (x, y, #z); True }}}
 "not_cmpxchg"
      : string
-The command has indeed failed with message:
-Tactic failure: wp_cmpxchg_suc: cannot find 'CmpXchg' in 
-(#() #()).
